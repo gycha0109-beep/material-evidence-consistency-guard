@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from build_normalized_model import build_normalized_model
+from run_rules import run_gate_rules
 from validate_input import validate_input
 
 
@@ -78,6 +79,13 @@ def run(input_dir: Path, output_dir: Path, overwrite: bool = False) -> int:
     normalized_path = output_dir / "normalized.json"
     normalized_path.write_text(
         json.dumps(normalized_model, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+
+    rules_result = run_gate_rules(input_dir, normalized_model)
+    rules_debug_path = output_dir / "rules-debug.json"
+    rules_debug_path.write_text(
+        json.dumps(rules_result, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
     return 0
