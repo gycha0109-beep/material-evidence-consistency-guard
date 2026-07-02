@@ -1,0 +1,25 @@
+{
+  "high_risk_materials": [
+    "duck_down_cluster",
+    "duck_feather",
+    "goose_down_cluster",
+    "goose_feather",
+    "cashmere"
+  ],
+  "material_aliases": {
+    "\uc624\ub9ac \uc19c\ud138": "duck_down_cluster",
+    "\uc624\ub9ac\uae43\ud138": "duck_feather",
+    "\uc624\ub9ac \uae43\ud138": "duck_feather",
+    "\uac70\uc704 \uc19c\ud138": "goose_down_cluster",
+    "\uac70\uc704 \uae43\ud138": "goose_feather",
+    "\uce90\uc2dc\ubbf8\uc5b4": "cashmere"
+  },
+  "ambiguous_material_aliases": [
+    "down",
+    "feather",
+    "\ub2e4\uc6b4",
+    "\uae43\ud138"
+  ],
+  "required_evidence_rules": [],
+  "ratio_tolerance": 0.01
+}
