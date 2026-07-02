@@ -1,6 +1,7 @@
 {
   "input_dir": "fixtures\\cases\\01-pass-consistent",
   "output_dir": "output\\demo",
-  "generated_at": "2026-07-02T00:59:48.552300+00:00",
-  "status": "initialized"
+  "generated_at": "2026-07-02T01:02:54.527911+00:00",
+  "status": "initialized",
+  "tool_version": "0.1.0"
 }

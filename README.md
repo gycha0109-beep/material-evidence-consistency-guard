@@ -7,7 +7,7 @@ Submission scaffold for a Codex plugin that helps prepare human review of consis
 ```powershell
 cd src
 python scripts/run_guard.py --help
-python scripts/run_guard.py fixtures/cases/01-pass-consistent --out output/demo
+python scripts/run_guard.py fixtures/cases/01-pass-consistent --out output/demo --overwrite
 ```
 
 ## Scope Limits
