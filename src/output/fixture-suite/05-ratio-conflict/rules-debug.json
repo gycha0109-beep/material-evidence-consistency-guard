@@ -1,0 +1,55 @@
+{
+  "halted": true,
+  "halt_reason": "R-004 high: material ratio conflict",
+  "findings": [
+    {
+      "finding_id": "F-R004-001",
+      "rule_id": "R-004",
+      "severity": "high",
+      "status": "needs_human_review",
+      "message": "Material ratio values differ across product inputs and test report beyond the configured tolerance.",
+      "evidence_refs": [
+        "variants[0].material_components.충전재.materials[0]",
+        "notice.fill_disclosure.충전재[0]",
+        "detail_claims[2].explicit_materials[0]",
+        "evidence_document.tested_materials[0]"
+      ],
+      "human_action": "Confirm the latest production specification, product notice, detail page, and test report baseline values.",
+      "values": {
+        "component": "충전재",
+        "canonical_material": "duck_down_cluster",
+        "ratio_tolerance": 0.01,
+        "source_values": [
+          {
+            "source": "product-draft",
+            "material": "오리 솜털",
+            "percentage": 80.0,
+            "evidence_ref": "variants[0].material_components.충전재.materials[0]"
+          },
+          {
+            "source": "product-notice.fill_disclosure",
+            "material": "오리 솜털",
+            "percentage": 80.0,
+            "evidence_ref": "notice.fill_disclosure.충전재[0]"
+          },
+          {
+            "source": "detail-page",
+            "material": "오리 솜털",
+            "percentage": 80.0,
+            "evidence_ref": "detail_claims[2].explicit_materials[0]"
+          },
+          {
+            "source": "test-report",
+            "material": "오리 솜털",
+            "percentage": 70.0,
+            "evidence_ref": "evidence_document.tested_materials[0]"
+          }
+        ]
+      }
+    }
+  ],
+  "skipped_rules": [
+    "R-005",
+    "R-006"
+  ]
+}

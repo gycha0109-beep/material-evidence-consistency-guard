@@ -1,0 +1,24 @@
+{
+  "run_id": "run-2026-07-02T03:03:27.754592+00:00",
+  "summary": {
+    "blocker": 0,
+    "high": 1,
+    "medium": 0,
+    "review": 0
+  },
+  "findings": [
+    {
+      "finding_id": "F-R005-001",
+      "rule_id": "R-005",
+      "severity": "high",
+      "status": "needs_human_review",
+      "message": "Detail page states an explicit 100% duck down fill claim, while the test report lists separate duck down and feather ratios.",
+      "evidence_refs": [
+        "detail_claims[2].raw_text",
+        "evidence_document.tested_materials[0]",
+        "evidence_document.tested_materials[1]"
+      ],
+      "human_action": "Confirm the latest production specification, product notice, detail page, and test report baseline values."
+    }
+  ]
+}

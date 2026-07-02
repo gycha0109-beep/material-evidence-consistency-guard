@@ -1,0 +1,25 @@
+{
+  "run_id": "run-2026-07-02T03:03:27.534339+00:00",
+  "summary": {
+    "blocker": 0,
+    "high": 1,
+    "medium": 0,
+    "review": 0
+  },
+  "findings": [
+    {
+      "finding_id": "F-R004-001",
+      "rule_id": "R-004",
+      "severity": "high",
+      "status": "needs_human_review",
+      "message": "Material ratio values differ across product inputs and test report beyond the configured tolerance.",
+      "evidence_refs": [
+        "variants[0].material_components.충전재.materials[0]",
+        "notice.fill_disclosure.충전재[0]",
+        "detail_claims[2].explicit_materials[0]",
+        "evidence_document.tested_materials[0]"
+      ],
+      "human_action": "Confirm the latest production specification, product notice, detail page, and test report baseline values."
+    }
+  ]
+}

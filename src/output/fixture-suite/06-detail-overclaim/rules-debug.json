@@ -1,0 +1,48 @@
+{
+  "halted": true,
+  "halt_reason": "R-005 high: detail page explicit claim exceeds evidence",
+  "findings": [
+    {
+      "finding_id": "F-R005-001",
+      "rule_id": "R-005",
+      "severity": "high",
+      "status": "needs_human_review",
+      "message": "Detail page states an explicit 100% duck down fill claim, while the test report lists separate duck down and feather ratios.",
+      "evidence_refs": [
+        "detail_claims[2].raw_text",
+        "evidence_document.tested_materials[0]",
+        "evidence_document.tested_materials[1]"
+      ],
+      "human_action": "Confirm the latest production specification, product notice, detail page, and test report baseline values.",
+      "values": {
+        "claim_raw_text": "- 100% 오리 다운 충전재\n- 적용 범위: BLACK_ALL_SIZES\n- 적용 SKU: NW-DP-2026-01",
+        "claim_percentage": 100.0,
+        "claim_material": "오리 다운",
+        "evidence_values": [
+          {
+            "component": "충전재",
+            "material": "오리 솜털",
+            "percentage": 80.0,
+            "normalized_material": {
+              "status": "canonical",
+              "value": "duck_down_cluster"
+            },
+            "evidence_ref": "evidence_document.tested_materials[0]"
+          },
+          {
+            "component": "충전재",
+            "material": "오리 깃털",
+            "percentage": 20.0,
+            "normalized_material": {
+              "status": "canonical",
+              "value": "duck_feather"
+            },
+            "evidence_ref": "evidence_document.tested_materials[1]"
+          }
+        ],
+        "ratio_tolerance": 0.01
+      }
+    }
+  ],
+  "skipped_rules": []
+}

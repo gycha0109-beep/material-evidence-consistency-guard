@@ -1,8 +1,9 @@
 {
   "expected_rule_ids": ["R-002"],
-  "forbidden_rule_ids": ["R-003", "R-004", "R-005", "R-006"],
+  "forbidden_rule_ids": ["R-001", "R-003", "R-004", "R-005", "R-006"],
   "expected_severities": {
     "R-002": "blocker"
   },
-  "expected_halted": true
+  "expected_halted": true,
+  "expected_exit_code": 0
 }

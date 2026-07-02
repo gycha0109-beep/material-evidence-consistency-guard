@@ -1,0 +1,24 @@
+{
+  "run_id": "run-2026-07-02T03:03:26.584603+00:00",
+  "summary": {
+    "blocker": 1,
+    "high": 0,
+    "medium": 0,
+    "review": 0
+  },
+  "findings": [
+    {
+      "finding_id": "F-R001-001",
+      "rule_id": "R-001",
+      "severity": "blocker",
+      "status": "needs_human_review",
+      "message": "High-risk material or fill exists in product-draft, but no test-report.md or test-report.pdf was provided.",
+      "evidence_refs": [
+        "product-draft.json",
+        "test-report.md",
+        "test-report.pdf"
+      ],
+      "human_action": "Attach a test report for the high-risk or fill material before running downstream consistency checks."
+    }
+  ]
+}

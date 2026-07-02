@@ -1,0 +1,23 @@
+{
+  "run_id": "run-2026-07-02T03:03:26.901914+00:00",
+  "summary": {
+    "blocker": 1,
+    "high": 0,
+    "medium": 0,
+    "review": 0
+  },
+  "findings": [
+    {
+      "finding_id": "F-R002-001",
+      "rule_id": "R-002",
+      "severity": "blocker",
+      "status": "needs_human_review",
+      "message": "Test report is present but incomplete or unreadable: test-report.pdf extraction unavailable: optional dependency pypdf is not installed, tested_product_name, tested_product_identifier, tested_materials, issuer, issued_at",
+      "evidence_refs": [
+        "test-report.md",
+        "evidence_document"
+      ],
+      "human_action": "Confirm report identity, issuer, issue date, tested product identifier, and tested materials."
+    }
+  ]
+}

@@ -17,6 +17,14 @@ from run_rules import run_gate_rules  # noqa: E402
 
 
 CASE01_DIR = SRC_ROOT / "fixtures" / "cases" / "01-pass-consistent"
+CASE02_DIR = SRC_ROOT / "fixtures" / "cases" / "02-missing-evidence"
+CASE03_DIR = SRC_ROOT / "fixtures" / "cases" / "03-report-extraction-failure"
+OUTPUT_FILES = {
+    "findings.json",
+    "review-report.md",
+    "evidence-map.json",
+    "human-review-queue.md",
+}
 
 
 class GateRulesTest(unittest.TestCase):
@@ -35,6 +43,7 @@ class GateRulesTest(unittest.TestCase):
             self.assertTrue(result["halted"])
             self.assertEqual(result["findings"][0]["rule_id"], "R-001")
             self.assertEqual(len(result["findings"]), 1)
+            self.assertEqual(result["halt_reason"], "missing_required_evidence")
             self.assertIn("R-002", result["skipped_rules"])
 
     def test_existing_report_with_missing_core_field_creates_r002_only(self) -> None:
@@ -55,6 +64,7 @@ class GateRulesTest(unittest.TestCase):
             self.assertTrue(result["halted"])
             self.assertEqual(result["findings"][0]["rule_id"], "R-002")
             self.assertEqual(len(result["findings"]), 1)
+            self.assertEqual(result["halt_reason"], "evidence_not_extractable_or_incomplete")
             self.assertIn("front_matter.tested_product_identifier", result["findings"][0]["message"])
 
     def test_gate_halts_for_r001_or_r002(self) -> None:
@@ -83,8 +93,62 @@ tested_variant_scope: BLACK_ALL_SIZES
 
             self.assertTrue(r001_result["halted"])
             self.assertTrue(r002_result["halted"])
+            self.assertEqual(r001_result["halt_reason"], "missing_required_evidence")
+            self.assertEqual(r002_result["halt_reason"], "evidence_not_extractable_or_incomplete")
             self.assertIn("R-003", r001_result["skipped_rules"])
             self.assertIn("R-003", r002_result["skipped_rules"])
+
+    def test_case02_full_flow_creates_only_r001_outputs(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            output_dir = Path(temp_dir) / "case02"
+            completed = __import__("subprocess").run(
+                [
+                    sys.executable,
+                    str(SCRIPTS_DIR / "run_guard.py"),
+                    str(CASE02_DIR),
+                    "--out",
+                    str(output_dir),
+                ],
+                cwd=SRC_ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+
+            self.assertEqual(completed.returncode, 0, completed.stderr)
+            rules_debug = json.loads((output_dir / "rules-debug.json").read_text(encoding="utf-8"))
+            rule_ids = [finding["rule_id"] for finding in rules_debug["findings"]]
+            self.assertEqual(rule_ids, ["R-001"])
+            self.assertEqual(rules_debug["findings"][0]["severity"], "blocker")
+            self.assertTrue(rules_debug["halted"])
+            self.assertEqual(rules_debug["halt_reason"], "missing_required_evidence")
+            self.assertTrue(OUTPUT_FILES.issubset({path.name for path in output_dir.iterdir()}))
+
+    def test_case03_full_flow_creates_only_r002_outputs(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            output_dir = Path(temp_dir) / "case03"
+            completed = __import__("subprocess").run(
+                [
+                    sys.executable,
+                    str(SCRIPTS_DIR / "run_guard.py"),
+                    str(CASE03_DIR),
+                    "--out",
+                    str(output_dir),
+                ],
+                cwd=SRC_ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+
+            self.assertEqual(completed.returncode, 0, completed.stderr)
+            rules_debug = json.loads((output_dir / "rules-debug.json").read_text(encoding="utf-8"))
+            rule_ids = [finding["rule_id"] for finding in rules_debug["findings"]]
+            self.assertEqual(rule_ids, ["R-002"])
+            self.assertEqual(rules_debug["findings"][0]["severity"], "blocker")
+            self.assertTrue(rules_debug["halted"])
+            self.assertEqual(rules_debug["halt_reason"], "evidence_not_extractable_or_incomplete")
+            self.assertTrue(OUTPUT_FILES.issubset({path.name for path in output_dir.iterdir()}))
 
     def test_case01_passes_gate(self) -> None:
         normalized = build_normalized_model(CASE01_DIR)

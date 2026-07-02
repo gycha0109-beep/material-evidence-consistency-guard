@@ -128,8 +128,12 @@ def validate_input(input_dir: Path) -> dict[str, Any]:
 
     test_report_md = input_dir / "test-report.md"
     test_report_pdf = input_dir / "test-report.pdf"
-    if not test_report_md.is_file() and not test_report_pdf.is_file():
-        errors.append("test-report.md or test-report.pdf: required test report is missing")
+    if test_report_md.is_file():
+        evidence_input_status = "markdown"
+    elif test_report_pdf.is_file():
+        evidence_input_status = "pdf"
+    else:
+        evidence_input_status = "absent"
 
     product_draft_path = input_dir / "product-draft.json"
     if product_draft_path.is_file():
@@ -153,6 +157,7 @@ def validate_input(input_dir: Path) -> dict[str, Any]:
     return {
         "ok": not errors,
         "errors": errors,
+        "evidence_input_status": evidence_input_status,
     }
 
 

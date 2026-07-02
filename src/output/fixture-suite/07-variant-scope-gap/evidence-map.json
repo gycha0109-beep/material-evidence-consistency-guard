@@ -1,0 +1,99 @@
+{
+  "claims": [
+    {
+      "claim_id": "product-identity",
+      "claim_text": "노르딕 오리 다운 파카",
+      "claim_scope": "NW-DP-2026-01",
+      "support_status": "supported",
+      "supporting_sources": [
+        "product",
+        "evidence_document.tested_product"
+      ],
+      "conflicting_sources": [],
+      "review_reason": "Human review makes the final product identity judgment."
+    },
+    {
+      "claim_id": "detail-claim-1",
+      "claim_text": "- product_id: MUS-OUTER-00031\n- product_name: 노르딕 오리 다운 파카\n- internal_sku: NW-DP-2026-01\n- option_scope: all_variants\n- options: 블랙 / M, 블랙 / L, 베이지 / M",
+      "claim_scope": [],
+      "support_status": "supported",
+      "supporting_sources": [
+        "detail_claims[0]",
+        "evidence_document.tested_materials"
+      ],
+      "conflicting_sources": [],
+      "review_reason": "No rule finding conflicts with this explicit claim in the current implemented checks."
+    },
+    {
+      "claim_id": "detail-claim-2",
+      "claim_text": "- 겉감: 나일론 100%",
+      "claim_scope": [],
+      "support_status": "supported",
+      "supporting_sources": [
+        "detail_claims[1]",
+        "evidence_document.tested_materials"
+      ],
+      "conflicting_sources": [],
+      "review_reason": "No rule finding conflicts with this explicit claim in the current implemented checks."
+    },
+    {
+      "claim_id": "detail-claim-3",
+      "claim_text": "- 전 옵션 오리 다운 충전재\n- 적용 범위: 전 옵션\n- 적용 SKU: NW-DP-2026-01",
+      "claim_scope": [
+        "ALL_OPTIONS"
+      ],
+      "support_status": "conflicting",
+      "supporting_sources": [
+        "detail_claims[2]",
+        "evidence_document.tested_materials"
+      ],
+      "conflicting_sources": [
+        "detail_claims[2].explicit_scope",
+        "evidence_document.tested_product.variant_scope",
+        "variants"
+      ],
+      "review_reason": "Detail claim is linked to an R-005 finding; human review determines final handling."
+    },
+    {
+      "claim_id": "detail-claim-4",
+      "claim_text": "- 시험성적서 참조 SKU: NW-DP-2026-01\n- 시험성적서 참조 범위: BLACK_ALL_SIZES\n- 시험성적서 충전재: 오리 솜털 80%, 오리 깃털 20%",
+      "claim_scope": [
+        "BLACK_ALL_SIZES"
+      ],
+      "support_status": "supported",
+      "supporting_sources": [
+        "detail_claims[3]",
+        "evidence_document.tested_materials"
+      ],
+      "conflicting_sources": [],
+      "review_reason": "No rule finding conflicts with this explicit claim in the current implemented checks."
+    },
+    {
+      "claim_id": "detail-claim-5",
+      "claim_text": "- 케어 및 안전 관련 추가 소재 주장은 이 fixture에 포함하지 않는다.",
+      "claim_scope": [],
+      "support_status": "supported",
+      "supporting_sources": [
+        "detail_claims[4]",
+        "evidence_document.tested_materials"
+      ],
+      "conflicting_sources": [],
+      "review_reason": "No rule finding conflicts with this explicit claim in the current implemented checks."
+    },
+    {
+      "claim_id": "variant-scope",
+      "claim_text": "Variant material coverage against test report scope",
+      "claim_scope": "BLACK_ALL_SIZES",
+      "support_status": "conflicting",
+      "supporting_sources": [
+        "variants",
+        "evidence_document.tested_product.variant_scope"
+      ],
+      "conflicting_sources": [
+        "variants",
+        "evidence_document.tested_product.variant_scope"
+      ],
+      "review_reason": "Variant-specific evidence coverage requires human review before final action."
+    }
+  ]
+}

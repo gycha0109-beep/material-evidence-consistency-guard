@@ -1,0 +1,274 @@
+{
+  "product": {
+    "product_id": "MUS-OUTER-00031",
+    "product_name": "노르딕 오리 다운 파카",
+    "internal_sku": "NW-DP-2026-01"
+  },
+  "variants": [
+    {
+      "variant_id": "variant-1",
+      "option_name": "블랙 / M",
+      "sku": "NW-DP-2026-01",
+      "scope": "BLACK_ALL_SIZES",
+      "material_components": [
+        {
+          "component": "겉감",
+          "materials": [
+            {
+              "material": "나일론",
+              "ratio": 100,
+              "normalized_material": {
+                "status": "unknown",
+                "value": "나일론"
+              },
+              "percentage": 100.0
+            }
+          ]
+        },
+        {
+          "component": "충전재",
+          "materials": [
+            {
+              "material": "오리 솜털",
+              "canonical_material": "duck_down_cluster",
+              "ratio": 80,
+              "normalized_material": {
+                "status": "canonical",
+                "value": "duck_down_cluster"
+              },
+              "percentage": 80.0
+            },
+            {
+              "material": "오리 깃털",
+              "canonical_material": "duck_feather",
+              "ratio": 20,
+              "normalized_material": {
+                "status": "canonical",
+                "value": "duck_feather"
+              },
+              "percentage": 20.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "variant_id": "variant-2",
+      "option_name": "블랙 / L",
+      "sku": "NW-DP-2026-01",
+      "scope": "BLACK_ALL_SIZES",
+      "material_components": [
+        {
+          "component": "겉감",
+          "materials": [
+            {
+              "material": "나일론",
+              "ratio": 100,
+              "normalized_material": {
+                "status": "unknown",
+                "value": "나일론"
+              },
+              "percentage": 100.0
+            }
+          ]
+        },
+        {
+          "component": "충전재",
+          "materials": [
+            {
+              "material": "오리 솜털",
+              "canonical_material": "duck_down_cluster",
+              "ratio": 80,
+              "normalized_material": {
+                "status": "canonical",
+                "value": "duck_down_cluster"
+              },
+              "percentage": 80.0
+            },
+            {
+              "material": "오리 깃털",
+              "canonical_material": "duck_feather",
+              "ratio": 20,
+              "normalized_material": {
+                "status": "canonical",
+                "value": "duck_feather"
+              },
+              "percentage": 20.0
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "notice": {
+    "variant_scope": {
+      "scope_id": "BLACK_ALL_SIZES",
+      "sku": "NW-DP-2026-01",
+      "options": [
+        "블랙 / M",
+        "블랙 / L"
+      ]
+    },
+    "material_disclosure": {
+      "겉감": [
+        {
+          "material": "나일론",
+          "ratio": 100,
+          "normalized_material": {
+            "status": "unknown",
+            "value": "나일론"
+          },
+          "percentage": 100.0
+        }
+      ]
+    },
+    "fill_disclosure": {
+      "충전재": [
+        {
+          "material": "오리 솜털",
+          "canonical_material": "duck_down_cluster",
+          "ratio": 80,
+          "normalized_material": {
+            "status": "canonical",
+            "value": "duck_down_cluster"
+          },
+          "percentage": 80.0
+        },
+        {
+          "material": "오리 깃털",
+          "canonical_material": "duck_feather",
+          "ratio": 20,
+          "normalized_material": {
+            "status": "canonical",
+            "value": "duck_feather"
+          },
+          "percentage": 20.0
+        }
+      ]
+    }
+  },
+  "detail_claims": [
+    {
+      "section": "## Product Identity",
+      "raw_text": "- product_id: MUS-OUTER-00031\n- product_name: 노르딕 오리 다운 파카\n- internal_sku: NW-DP-2026-01\n- option_scope: BLACK_ALL_SIZES\n- options: 블랙 / M, 블랙 / L",
+      "explicit_materials": [],
+      "explicit_percentages": [],
+      "explicit_scope": [
+        "BLACK_ALL_SIZES"
+      ]
+    },
+    {
+      "section": "## Material Claims",
+      "raw_text": "- 겉감: 나일론 100%",
+      "explicit_materials": [
+        {
+          "material": "나일론",
+          "normalized_material": {
+            "status": "unknown",
+            "value": "나일론"
+          },
+          "percentage": 100.0
+        }
+      ],
+      "explicit_percentages": [
+        100.0
+      ],
+      "explicit_scope": []
+    },
+    {
+      "section": "## Fill Claims",
+      "raw_text": "- 충전재: 오리 솜털 80%, 오리 깃털 20%\n- 적용 범위: BLACK_ALL_SIZES\n- 적용 SKU: NW-DP-2026-01",
+      "explicit_materials": [
+        {
+          "material": "오리 솜털",
+          "normalized_material": {
+            "status": "canonical",
+            "value": "duck_down_cluster"
+          },
+          "percentage": 80.0
+        },
+        {
+          "material": "오리 깃털",
+          "normalized_material": {
+            "status": "canonical",
+            "value": "duck_feather"
+          },
+          "percentage": 20.0
+        }
+      ],
+      "explicit_percentages": [
+        80.0,
+        20.0
+      ],
+      "explicit_scope": [
+        "BLACK_ALL_SIZES"
+      ]
+    },
+    {
+      "section": "## Certification Or Evidence Claims",
+      "raw_text": "- 시험성적서 참조 상품명: 노르딕 오리 다운 파카\n- 시험성적서 참조 SKU: NW-DP-2026-01\n- 시험성적서 참조 범위: BLACK_ALL_SIZES\n- 시험성적서 충전재: 오리 솜털 80%, 오리 깃털 20%",
+      "explicit_materials": [
+        {
+          "material": "오리 솜털",
+          "normalized_material": {
+            "status": "canonical",
+            "value": "duck_down_cluster"
+          },
+          "percentage": 80.0
+        },
+        {
+          "material": "오리 깃털",
+          "normalized_material": {
+            "status": "canonical",
+            "value": "duck_feather"
+          },
+          "percentage": 20.0
+        }
+      ],
+      "explicit_percentages": [
+        80.0,
+        20.0
+      ],
+      "explicit_scope": [
+        "BLACK_ALL_SIZES"
+      ]
+    },
+    {
+      "section": "## Care Or Safety Claims",
+      "raw_text": "- 케어 및 안전 관련 추가 소재 주장은 이 fixture에 포함하지 않는다.",
+      "explicit_materials": [],
+      "explicit_percentages": [],
+      "explicit_scope": []
+    }
+  ],
+  "evidence_document": {
+    "document_status": "absent",
+    "tested_product": null,
+    "tested_materials": [],
+    "issuer": null,
+    "issued_at": null,
+    "missing_fields": []
+  },
+  "uncertainties": [
+    {
+      "field": "variants[0].material_components[0].materials[0].normalized_material",
+      "status": "unknown",
+      "reason": "material normalization returned unknown"
+    },
+    {
+      "field": "variants[1].material_components[0].materials[0].normalized_material",
+      "status": "unknown",
+      "reason": "material normalization returned unknown"
+    },
+    {
+      "field": "notice.material_disclosure.겉감[0].normalized_material",
+      "status": "unknown",
+      "reason": "material normalization returned unknown"
+    },
+    {
+      "field": "detail_claims[1].explicit_materials[0].normalized_material",
+      "status": "unknown",
+      "reason": "material normalization returned unknown"
+    }
+  ]
+}

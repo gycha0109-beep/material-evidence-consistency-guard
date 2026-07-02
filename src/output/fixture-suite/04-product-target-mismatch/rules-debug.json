@@ -1,0 +1,30 @@
+{
+  "halted": true,
+  "halt_reason": "R-003 high: test report target product mismatch",
+  "findings": [
+    {
+      "finding_id": "F-R003-001",
+      "rule_id": "R-003",
+      "severity": "high",
+      "status": "needs_human_review",
+      "message": "Test report target SKU does not match the registered product SKU.",
+      "evidence_refs": [
+        "product.internal_sku",
+        "evidence_document.tested_product.identifier"
+      ],
+      "human_action": "Confirm whether the test report belongs to the current product before comparing materials.",
+      "values": {
+        "product.product_id": "MUS-OUTER-00031",
+        "product.internal_sku": "NW-DP-2026-01",
+        "product.product_name": "노르딕 오리 다운 파카",
+        "evidence_document.tested_product.identifier": "UW-GV-02",
+        "evidence_document.tested_product.name": "노르딕 오리 다운 파카"
+      }
+    }
+  ],
+  "skipped_rules": [
+    "R-004",
+    "R-005",
+    "R-006"
+  ]
+}

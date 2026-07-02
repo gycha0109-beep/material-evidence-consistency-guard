@@ -113,9 +113,24 @@ def _parse_tested_materials(lines: list[str], policy: dict[str, Any]) -> list[di
     return normalized_materials
 
 
-def unreadable_result(reason: str) -> dict[str, Any]:
+def absent_result() -> dict[str, Any]:
+    return {
+        "document_status": "absent",
+        "source_file": None,
+        "report_id": None,
+        "issuer": None,
+        "issued_at": None,
+        "tested_product": None,
+        "tested_materials": [],
+        "missing_fields": [],
+        "parse_notes": ["No test-report.md or test-report.pdf was supplied."],
+    }
+
+
+def unreadable_result(reason: str, source_file: str | None = None) -> dict[str, Any]:
     return {
         "document_status": "unreadable",
+        "source_file": source_file,
         "report_id": None,
         "issuer": None,
         "issued_at": None,
@@ -127,6 +142,7 @@ def unreadable_result(reason: str) -> dict[str, Any]:
         },
         "tested_materials": [],
         "missing_fields": [reason],
+        "parse_notes": [reason],
     }
 
 
@@ -150,6 +166,7 @@ def parse_test_report_text(text: str, policy: dict[str, Any]) -> dict[str, Any]:
 
     return {
         "document_status": "incomplete" if missing_fields else "parsed",
+        "source_file": None,
         "report_id": front_matter.get("report_id"),
         "issuer": front_matter.get("issuer"),
         "issued_at": front_matter.get("issued_at"),
@@ -161,6 +178,7 @@ def parse_test_report_text(text: str, policy: dict[str, Any]) -> dict[str, Any]:
         },
         "tested_materials": tested_materials,
         "missing_fields": missing_fields,
+        "parse_notes": [],
     }
 
 
@@ -182,21 +200,25 @@ def parse_pdf_text(path: Path) -> str | None:
 def parse_test_report_pdf(path: Path | str, policy: dict[str, Any] | None = None) -> dict[str, Any]:
     report_path = Path(path)
     if not report_path.is_file():
-        return unreadable_result(f"test report PDF does not exist: {report_path}")
+        return unreadable_result(f"test report PDF does not exist: {report_path}", source_file=str(report_path))
 
     policy_data = policy or load_policy()
     try:
         text = parse_pdf_text(report_path)
     except Exception as exc:
-        return unreadable_result(f"test-report.pdf extraction failed: {exc}")
+        return unreadable_result(f"test-report.pdf extraction failed: {exc}", source_file=report_path.name)
 
     if text is None:
-        return unreadable_result("test-report.pdf extraction unavailable: optional dependency pypdf is not installed")
+        return unreadable_result(
+            "test-report.pdf extraction unavailable: optional dependency pypdf is not installed",
+            source_file=report_path.name,
+        )
 
     if len(text.strip()) < 40:
-        return unreadable_result("test-report.pdf extraction produced too little text")
+        return unreadable_result("test-report.pdf extraction produced too little text", source_file=report_path.name)
 
     result = parse_test_report_text(text, policy_data)
+    result["source_file"] = report_path.name
     if result["document_status"] != "parsed":
         result["document_status"] = "incomplete"
         if "test-report.pdf extracted text did not satisfy required fields" not in result["missing_fields"]:
@@ -211,7 +233,9 @@ def parse_test_report(path: Path | str, policy: dict[str, Any] | None = None) ->
 
     policy_data = policy or load_policy()
     text = report_path.read_text(encoding="utf-8")
-    return parse_test_report_text(text, policy_data)
+    result = parse_test_report_text(text, policy_data)
+    result["source_file"] = report_path.name
+    return result
 
 
 def parse_test_report_input(input_dir: Path | str, policy: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -224,7 +248,7 @@ def parse_test_report_input(input_dir: Path | str, policy: dict[str, Any] | None
     if pdf_path.is_file():
         return parse_test_report_pdf(pdf_path, policy)
 
-    raise FileNotFoundError(f"test report does not exist: {markdown_path} or {pdf_path}")
+    return absent_result()
 
 
 def build_parser() -> argparse.ArgumentParser:

@@ -1,0 +1,45 @@
+{
+  "halted": false,
+  "halt_reason": null,
+  "findings": [
+    {
+      "finding_id": "F-R004-REVIEW-001",
+      "rule_id": "R-004",
+      "severity": "review",
+      "status": "needs_human_review",
+      "message": "Material ratio comparison includes ambiguous material aliases and cannot be treated as a confirmed mismatch.",
+      "evidence_refs": [
+        "evidence_document.tested_materials[0]",
+        "evidence_document.tested_materials[1]"
+      ],
+      "human_action": "Confirm the latest production specification, product notice, detail page, and test report baseline values.",
+      "values": {
+        "ambiguous_values": [
+          {
+            "source": "test-report",
+            "evidence_ref": "evidence_document.tested_materials[0]",
+            "component": "충전재",
+            "material": "down",
+            "normalized_material": {
+              "status": "ambiguous",
+              "value": "down"
+            },
+            "percentage": 80.0
+          },
+          {
+            "source": "test-report",
+            "evidence_ref": "evidence_document.tested_materials[1]",
+            "component": "충전재",
+            "material": "feather",
+            "normalized_material": {
+              "status": "ambiguous",
+              "value": "feather"
+            },
+            "percentage": 20.0
+          }
+        ]
+      }
+    }
+  ],
+  "skipped_rules": []
+}

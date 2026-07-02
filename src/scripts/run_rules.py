@@ -589,23 +589,49 @@ def run_gate_rules(
     case_dir = Path(input_dir)
     product_draft = load_product_draft(case_dir)
     findings: list[dict[str, Any]] = []
+    high_risk_or_fill = has_high_risk_or_fill(product_draft)
+    evidence_document = (normalized_model or {}).get("evidence_document") or {}
+    document_status = evidence_document.get("document_status")
+    if document_status is None and not has_test_report(case_dir):
+        document_status = "absent"
 
-    r001 = evaluate_r001(case_dir, product_draft)
-    if r001 is not None:
-        findings.append(r001)
+    if document_status == "absent":
+        if high_risk_or_fill:
+            r001 = make_finding(
+                finding_id="F-R001-001",
+                rule_id="R-001",
+                message="High-risk material or fill exists in product-draft, but no test-report.md or test-report.pdf was provided.",
+                evidence_refs=["product-draft.json", "test-report.md", "test-report.pdf"],
+                human_action="Attach a test report for the high-risk or fill material before running downstream consistency checks.",
+            )
+            findings.append(r001)
+            return {
+                "halted": True,
+                "halt_reason": "missing_required_evidence",
+                "findings": findings,
+                "skipped_rules": ["R-002", "R-003", "R-004", "R-005", "R-006"],
+            }
         return {
-            "halted": True,
-            "halt_reason": "R-001 blocker: test report input is missing",
+            "halted": False,
+            "halt_reason": None,
             "findings": findings,
-            "skipped_rules": ["R-002", "R-003", "R-004", "R-005", "R-006"],
+            "skipped_rules": ["R-003", "R-004", "R-005", "R-006"],
         }
 
-    r002 = evaluate_r002(normalized_model, parse_error=parse_error)
-    if r002 is not None:
+    if document_status in {"unreadable", "incomplete"}:
+        r002 = evaluate_r002(normalized_model, parse_error=parse_error)
+        if r002 is None:
+            r002 = make_finding(
+                finding_id="F-R002-001",
+                rule_id="R-002",
+                message=f"Test report is present but incomplete or unreadable: document_status={document_status}",
+                evidence_refs=["test-report.md", "test-report.pdf", "evidence_document"],
+                human_action="Confirm report identity, issuer, issue date, tested product identifier, and tested materials.",
+            )
         findings.append(r002)
         return {
             "halted": True,
-            "halt_reason": "R-002 blocker: test report is incomplete or unreadable",
+            "halt_reason": "evidence_not_extractable_or_incomplete",
             "findings": findings,
             "skipped_rules": ["R-003", "R-004", "R-005", "R-006"],
         }

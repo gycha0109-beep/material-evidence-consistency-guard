@@ -1,0 +1,8 @@
+{
+  "input_dir": "fixtures\\cases\\02-missing-evidence",
+  "output_dir": "output\\t16-5-case-02",
+  "generated_at": "2026-07-02T03:03:12.512369+00:00",
+  "status": "initialized",
+  "tool_version": "0.1.0",
+  "run_id": "run-2026-07-02T03:03:12.512369+00:00"
+}

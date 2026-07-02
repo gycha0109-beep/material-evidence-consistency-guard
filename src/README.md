@@ -9,7 +9,13 @@ python scripts/run_guard.py --help
 python scripts/run_guard.py fixtures/cases/01-pass-consistent --out output/demo --overwrite
 ```
 
-The current CLI validates that the input directory exists, requires `--overwrite` for an existing output directory, and writes `run-meta.json`. Consistency rules, input parsing, fixture data, and PDF parsing are not implemented in this task.
+The current CLI validates the structural input contract, requires `--overwrite` for an existing output directory, and writes run metadata plus normalized, finding, evidence-map, and human-review Markdown outputs.
+
+## Test Report Input
+
+`test-report.md` is used first when present. If it is missing and `test-report.pdf` exists, the guard attempts limited text extraction without OCR or external services.
+
+If both report files are absent, that is not an input contract error. When high-risk material or fill is present, the rules layer classifies the absence as an R-001 evidence-missing finding. If a report file exists but is unreadable or lacks core comparison fields, the rules layer classifies it as R-002.
 
 ## Input Policy Fixture
 

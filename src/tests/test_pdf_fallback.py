@@ -39,15 +39,15 @@ class PdfFallbackTest(unittest.TestCase):
                 "NW-DP-2026-01",
             )
 
-    def test_no_pdf_or_markdown_uses_existing_contract(self) -> None:
+    def test_no_pdf_or_markdown_is_absent_evidence_status(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             case_dir = copy_case(CASE01_DIR, Path(temp_dir) / "case")
             (case_dir / "test-report.md").unlink()
 
             result = validate_input(case_dir)
 
-            self.assertFalse(result["ok"])
-            self.assertIn("test-report.md or test-report.pdf", "\n".join(result["errors"]))
+            self.assertTrue(result["ok"], result["errors"])
+            self.assertEqual(result["evidence_input_status"], "absent")
 
     def test_pdf_parsing_failure_becomes_r002(self) -> None:
         normalized = build_normalized_model(CASE07_DIR)

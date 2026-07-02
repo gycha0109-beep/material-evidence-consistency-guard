@@ -1,0 +1,35 @@
+{
+  "run_id": "run-2026-07-02T03:03:28.018715+00:00",
+  "summary": {
+    "blocker": 0,
+    "high": 2,
+    "medium": 0,
+    "review": 0
+  },
+  "findings": [
+    {
+      "finding_id": "F-R005-002",
+      "rule_id": "R-005",
+      "severity": "high",
+      "status": "needs_human_review",
+      "message": "Detail page applies an explicit claim to all options, while the test report scope is narrower.",
+      "evidence_refs": [
+        "detail_claims[2].explicit_scope",
+        "evidence_document.tested_product.variant_scope"
+      ],
+      "human_action": "Confirm the latest production specification, product notice, detail page, and test report baseline values."
+    },
+    {
+      "finding_id": "F-R006-001",
+      "rule_id": "R-006",
+      "severity": "high",
+      "status": "needs_human_review",
+      "message": "Variant materials differ, but the test report scope covers only part of the registered option set.",
+      "evidence_refs": [
+        "variants",
+        "evidence_document.tested_product.variant_scope"
+      ],
+      "human_action": "Confirm which options are covered by the test report before comparing variant-specific materials."
+    }
+  ]
+}

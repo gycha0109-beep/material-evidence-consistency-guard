@@ -4,5 +4,6 @@
   "expected_severities": {
     "R-001": "blocker"
   },
-  "expected_halted": true
+  "expected_halted": true,
+  "expected_exit_code": 0
 }

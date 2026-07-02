@@ -180,6 +180,7 @@ def render_review_report(
 ) -> str:
     product = normalized_model.get("product", {})
     evidence = normalized_model.get("evidence_document", {})
+    evidence_product = evidence.get("tested_product") or {}
     findings = sorted_findings(findings_output.get("findings", []))
     lines = [
         "# Material Evidence Consistency Review",
@@ -217,7 +218,7 @@ def render_review_report(
                 f"### {finding.get('severity')} - {finding.get('rule_id')} - {finding.get('finding_id')}",
                 "",
                 f"- Product: {product.get('product_name')}",
-                f"- Option Scope: {format_value(evidence.get('tested_product', {}).get('variant_scope'))}",
+                f"- Option Scope: {format_value(evidence_product.get('variant_scope'))}",
                 f"- Message: {finding.get('message')}",
                 f"- Status: {finding.get('status')}",
                 f"- Evidence Refs: {', '.join(finding.get('evidence_refs', []))}",

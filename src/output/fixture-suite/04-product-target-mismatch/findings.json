@@ -1,0 +1,23 @@
+{
+  "run_id": "run-2026-07-02T03:03:27.204509+00:00",
+  "summary": {
+    "blocker": 0,
+    "high": 1,
+    "medium": 0,
+    "review": 0
+  },
+  "findings": [
+    {
+      "finding_id": "F-R003-001",
+      "rule_id": "R-003",
+      "severity": "high",
+      "status": "needs_human_review",
+      "message": "Test report target SKU does not match the registered product SKU.",
+      "evidence_refs": [
+        "product.internal_sku",
+        "evidence_document.tested_product.identifier"
+      ],
+      "human_action": "Confirm whether the test report belongs to the current product before comparing materials."
+    }
+  ]
+}
