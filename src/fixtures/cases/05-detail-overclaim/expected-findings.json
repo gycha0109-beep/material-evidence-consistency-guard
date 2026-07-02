@@ -1,0 +1,8 @@
+{
+  "findings": [
+    {
+      "rule_id": "R-005",
+      "severity": "high"
+    }
+  ]
+}

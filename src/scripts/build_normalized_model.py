@@ -14,6 +14,7 @@ from parse_test_report import parse_test_report
 
 PERCENTAGE_PATTERN = re.compile(r"(?P<material>[^,\n:/]+?)\s+(?P<percentage>\d+(?:\.\d+)?)%?")
 SCOPE_PATTERN = re.compile(r"\b[A-Z][A-Z0-9_]*_ALL_[A-Z0-9_]+\b")
+ALL_OPTIONS_PHRASES = ["전체 옵션", "전 옵션", "모든 옵션"]
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -120,6 +121,8 @@ def parse_detail_claims(path: Path, policy: dict[str, Any]) -> list[dict[str, An
             )
 
         scopes = sorted(set(SCOPE_PATTERN.findall(raw_text)))
+        if any(phrase in raw_text for phrase in ALL_OPTIONS_PHRASES):
+            scopes.append("ALL_OPTIONS")
         claims.append(
             {
                 "section": section["section"],

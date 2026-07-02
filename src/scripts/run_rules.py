@@ -351,6 +351,131 @@ def evaluate_r004(input_dir: Path, normalized_model: dict[str, Any]) -> dict[str
     return None
 
 
+def evidence_ratio_map(normalized_model: dict[str, Any]) -> dict[tuple[str, str], list[dict[str, Any]]]:
+    evidence: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    for index, material in enumerate(normalized_model.get("evidence_document", {}).get("tested_materials", [])):
+        key = material_key(material.get("component"), material.get("normalized_material") or {})
+        if key is None or material.get("percentage") is None:
+            continue
+        entry = dict(material)
+        entry["evidence_ref"] = f"evidence_document.tested_materials[{index}]"
+        evidence.setdefault(key, []).append(entry)
+    return evidence
+
+
+def evidence_scope(normalized_model: dict[str, Any]) -> str | None:
+    return normalized_model.get("evidence_document", {}).get("tested_product", {}).get("variant_scope")
+
+
+def evaluate_r005(input_dir: Path, normalized_model: dict[str, Any]) -> dict[str, Any] | None:
+    tolerance = ratio_tolerance(input_dir)
+    evidence = evidence_ratio_map(normalized_model)
+    review_values: list[dict[str, Any]] = []
+
+    for claim_index, claim in enumerate(normalized_model.get("detail_claims", [])):
+        raw_text = claim.get("raw_text", "")
+        for material_index, material in enumerate(claim.get("explicit_materials", [])):
+            normalized_material = material.get("normalized_material") or {}
+            if normalized_material.get("status") == "ambiguous":
+                review_values.append(
+                    {
+                        "claim_raw_text": raw_text,
+                        "material": material.get("material"),
+                        "percentage": material.get("percentage"),
+                        "evidence_ref": f"detail_claims[{claim_index}].explicit_materials[{material_index}]",
+                    }
+                )
+                continue
+
+            component = detail_component(claim.get("section", ""))
+            key = material_key(component, normalized_material)
+            if key is None or key not in evidence:
+                continue
+            evidence_percentages = [float(item["percentage"]) for item in evidence[key]]
+            claim_percentage = float(material["percentage"])
+            if any(abs(claim_percentage - percentage) > tolerance for percentage in evidence_percentages):
+                return make_finding(
+                    finding_id="F-R005-001",
+                    rule_id="R-005",
+                    severity="high",
+                    message="Detail page explicit material ratio differs from the test report value.",
+                    evidence_refs=[
+                        f"detail_claims[{claim_index}].explicit_materials[{material_index}]",
+                        *[item["evidence_ref"] for item in evidence[key]],
+                    ],
+                    human_action="Confirm the latest production specification, product notice, detail page, and test report baseline values.",
+                    values={
+                        "claim_raw_text": raw_text,
+                        "claim_material": material.get("material"),
+                        "claim_percentage": material.get("percentage"),
+                        "evidence_values": evidence[key],
+                        "ratio_tolerance": tolerance,
+                    },
+                )
+
+        duck_down_claim = re.search(r"100\s*%\s*오리\s*다운", raw_text)
+        if duck_down_claim:
+            down_key = (str(detail_component(claim.get("section", ""))), "duck_down_cluster")
+            feather_key = (str(detail_component(claim.get("section", ""))), "duck_feather")
+            down_values = evidence.get(down_key, [])
+            feather_values = evidence.get(feather_key, [])
+            if down_values and feather_values:
+                down_is_100 = any(abs(float(item["percentage"]) - 100.0) <= tolerance for item in down_values)
+                feather_is_0 = all(abs(float(item["percentage"])) <= tolerance for item in feather_values)
+                if not down_is_100 or not feather_is_0:
+                    return make_finding(
+                        finding_id="F-R005-001",
+                        rule_id="R-005",
+                        severity="high",
+                        message="Detail page states an explicit 100% duck down fill claim, while the test report lists separate duck down and feather ratios.",
+                        evidence_refs=[
+                            f"detail_claims[{claim_index}].raw_text",
+                            *[item["evidence_ref"] for item in down_values + feather_values],
+                        ],
+                        human_action="Confirm the latest production specification, product notice, detail page, and test report baseline values.",
+                        values={
+                            "claim_raw_text": raw_text,
+                            "claim_percentage": 100.0,
+                            "claim_material": "오리 다운",
+                            "evidence_values": down_values + feather_values,
+                            "ratio_tolerance": tolerance,
+                        },
+                    )
+
+        if "ALL_OPTIONS" in claim.get("explicit_scope", []):
+            tested_scope = evidence_scope(normalized_model)
+            if tested_scope and tested_scope not in {"ALL_OPTIONS", "BLACK_ALL_SIZES"}:
+                return make_finding(
+                    finding_id="F-R005-002",
+                    rule_id="R-005",
+                    severity="high",
+                    message="Detail page applies an explicit claim to all options, while the test report scope is narrower.",
+                    evidence_refs=[
+                        f"detail_claims[{claim_index}].explicit_scope",
+                        "evidence_document.tested_product.variant_scope",
+                    ],
+                    human_action="Confirm the latest production specification, product notice, detail page, and test report baseline values.",
+                    values={
+                        "claim_raw_text": raw_text,
+                        "claim_scope": "ALL_OPTIONS",
+                        "evidence_scope": tested_scope,
+                    },
+                )
+
+    if review_values:
+        return make_finding(
+            finding_id="F-R005-REVIEW-001",
+            rule_id="R-005",
+            severity="review",
+            message="Detail page includes explicit material ratios with ambiguous material aliases.",
+            evidence_refs=[value["evidence_ref"] for value in review_values],
+            human_action="Confirm the latest production specification, product notice, detail page, and test report baseline values.",
+            values={"ambiguous_claims": review_values},
+        )
+
+    return None
+
+
 def run_gate_rules(
     input_dir: Path | str,
     normalized_model: dict[str, Any] | None = None,
@@ -407,6 +532,17 @@ def run_gate_rules(
                     "halt_reason": "R-004 high: material ratio conflict",
                     "findings": findings,
                     "skipped_rules": ["R-005", "R-006"],
+                }
+
+        r005 = evaluate_r005(case_dir, normalized_model)
+        if r005 is not None:
+            findings.append(r005)
+            if r005["severity"] == "high":
+                return {
+                    "halted": True,
+                    "halt_reason": "R-005 high: detail page explicit claim exceeds evidence",
+                    "findings": findings,
+                    "skipped_rules": ["R-006"],
                 }
 
     return {
