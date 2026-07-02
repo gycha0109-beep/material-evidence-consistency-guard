@@ -1,7 +1,7 @@
 {
   "name": "material-evidence-consistency-guard",
   "version": "0.1.0",
-  "description": "Checks consistency signals across product attributes, detail-page claims, and test-report evidence before human review; it does not make legal judgments or automate approval.",
+  "description": "Checks consistency signals across product attributes, notices, detail-page claims, and test-report evidence before human review; it does not make legal judgments, certify authenticity, or automate approval.",
   "author": {
     "name": "Material Evidence Consistency Guard Contributors"
   },
@@ -9,7 +9,7 @@
   "interface": {
     "displayName": "Material Evidence Consistency Guard",
     "shortDescription": "Pre-review consistency checks for product evidence.",
-    "longDescription": "Helps prepare human review by recording consistency-check run metadata for product attributes, detail-page claims, and test-report evidence. It does not make legal determinations or automatically approve listings.",
+    "longDescription": "Helps prepare human review by validating inputs, normalizing explicit material evidence, running R-001 through R-006 consistency checks, and writing JSON and Markdown review outputs. It does not make legal determinations, approve or block sales, judge certificate authenticity, or decide whether advertising is false.",
     "developerName": "Material Evidence Consistency Guard Contributors",
     "category": "Productivity",
     "capabilities": [
