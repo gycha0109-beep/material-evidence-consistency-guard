@@ -1,4 +1,19 @@
-high_risk_materials: []
-material_aliases: {}
-required_evidence_rules: []
-ratio_tolerance: 0.01
+{
+  "high_risk_materials": [
+    "duck_down_cluster",
+    "duck_feather",
+    "goose_down_cluster",
+    "goose_feather",
+    "cashmere"
+  ],
+  "material_aliases": {
+    "오리 솜털": "duck_down_cluster",
+    "오리깃털": "duck_feather",
+    "오리 깃털": "duck_feather",
+    "거위 솜털": "goose_down_cluster",
+    "거위 깃털": "goose_feather",
+    "캐시미어": "cashmere"
+  },
+  "required_evidence_rules": [],
+  "ratio_tolerance": 0.01
+}
