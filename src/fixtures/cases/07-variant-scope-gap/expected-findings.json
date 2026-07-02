@@ -1,0 +1,9 @@
+{
+  "expected_rule_ids": ["R-005", "R-006"],
+  "forbidden_rule_ids": ["R-001", "R-002", "R-003", "R-004"],
+  "expected_severities": {
+    "R-005": "high",
+    "R-006": "high"
+  },
+  "expected_halted": true
+}

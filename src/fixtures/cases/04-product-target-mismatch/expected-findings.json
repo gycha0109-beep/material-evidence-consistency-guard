@@ -1,8 +1,8 @@
 {
-  "findings": [
-    {
-      "rule_id": "R-003",
-      "severity": "high"
-    }
-  ]
+  "expected_rule_ids": ["R-003"],
+  "forbidden_rule_ids": ["R-004", "R-005", "R-006"],
+  "expected_severities": {
+    "R-003": "high"
+  },
+  "expected_halted": true
 }
