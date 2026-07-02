@@ -14,7 +14,7 @@
     },
     {
       "claim_id": "detail-claim-1",
-      "claim_text": "- product_id: MUS-OUTER-00031\n- product_name: 노르딕 오리 다운 파카\n- internal_sku: NW-DP-2026-01\n- option_scope: BLACK_ALL_SIZES\n- options: 블랙 / M, 블랙 / L",
+      "claim_text": "- product_id: MUS-OUTER-00031\n- product_name: 노르딕 오리 다운 파카\n- internal_sku: NW-DP-2026-01\n- option_scope: BLACK_ALL_SIZES\n- options: 블랙 / M",
       "claim_scope": [
         "BLACK_ALL_SIZES"
       ],
@@ -40,24 +40,26 @@
     },
     {
       "claim_id": "detail-claim-3",
-      "claim_text": "- 충전재: 오리 솜털 80%, 오리 깃털 20%\n- 적용 범위: BLACK_ALL_SIZES\n- 적용 SKU: NW-DP-2026-01",
+      "claim_text": "- 100% 오리 다운 충전재\n- 적용 범위: BLACK_ALL_SIZES\n- 적용 SKU: NW-DP-2026-01",
       "claim_scope": [
         "BLACK_ALL_SIZES"
       ],
-      "support_status": "supported",
+      "support_status": "conflicting",
       "supporting_sources": [
         "detail_claims[2]",
         "evidence_document.tested_materials"
       ],
-      "conflicting_sources": [],
-      "review_reason": "No rule finding conflicts with this explicit claim in the current implemented checks."
+      "conflicting_sources": [
+        "detail_claims[2].raw_text",
+        "evidence_document.tested_materials[0]",
+        "evidence_document.tested_materials[1]"
+      ],
+      "review_reason": "Detail claim is linked to an R-005 finding; human review determines final handling."
     },
     {
       "claim_id": "detail-claim-4",
-      "claim_text": "- 시험성적서 참조 상품명: 노르딕 오리 다운 파카\n- 시험성적서 참조 SKU: NW-DP-2026-01\n- 시험성적서 참조 범위: BLACK_ALL_SIZES\n- 시험성적서 충전재: 오리 솜털 80%, 오리 깃털 20%",
-      "claim_scope": [
-        "BLACK_ALL_SIZES"
-      ],
+      "claim_text": "- 시험성적서 참조 SKU: NW-DP-2026-01\n- 시험성적서 충전재: 오리 솜털 80%, 오리 깃털 20%",
+      "claim_scope": [],
       "support_status": "supported",
       "supporting_sources": [
         "detail_claims[3]",

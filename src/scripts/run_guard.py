@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from build_normalized_model import build_normalized_model
-from render_outputs import write_json_outputs
+from render_outputs import write_all_outputs
 from run_rules import run_gate_rules
 from validate_input import validate_input
 
@@ -92,7 +92,7 @@ def run(input_dir: Path, output_dir: Path, overwrite: bool = False) -> int:
         json.dumps(rules_result, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
-    write_json_outputs(output_dir, run_id, normalized_model, rules_result)
+    write_all_outputs(output_dir, run_id, normalized_model, rules_result)
     return 0
 
 
