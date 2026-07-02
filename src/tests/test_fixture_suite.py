@@ -20,6 +20,7 @@ class FixtureSuiteTest(unittest.TestCase):
         )
 
         self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
+        self.assertIn("fixture suite: 8 case(s) passed", completed.stdout)
 
 
 if __name__ == "__main__":
