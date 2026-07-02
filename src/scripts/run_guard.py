@@ -8,6 +8,8 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from validate_input import validate_input
+
 
 TOOL_VERSION = "0.1.0"
 
@@ -36,6 +38,12 @@ def build_parser() -> argparse.ArgumentParser:
 def run(input_dir: Path, output_dir: Path, overwrite: bool = False) -> int:
     if not input_dir.is_dir():
         print(f"error: input directory does not exist: {input_dir}", file=sys.stderr)
+        return 2
+
+    validation_result = validate_input(input_dir)
+    if not validation_result["ok"]:
+        for error in validation_result["errors"]:
+            print(f"error: {error}", file=sys.stderr)
         return 2
 
     if output_dir.exists() and not output_dir.is_dir():
