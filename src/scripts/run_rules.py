@@ -367,6 +367,29 @@ def evidence_scope(normalized_model: dict[str, Any]) -> str | None:
     return normalized_model.get("evidence_document", {}).get("tested_product", {}).get("variant_scope")
 
 
+def scope_coverage(normalized_model: dict[str, Any]) -> dict[str, Any]:
+    scope = evidence_scope(normalized_model)
+    variants = normalized_model.get("variants", [])
+    if not scope:
+        return {"status": "unknown", "covered_variants": [], "tested_scope": scope}
+
+    scope_normalized = str(scope).strip()
+    if scope_normalized.lower() in {"all_variants", "all_options"} or scope_normalized == "ALL_OPTIONS":
+        return {"status": "all", "covered_variants": variants, "tested_scope": scope}
+
+    covered = [
+        variant
+        for variant in variants
+        if scope_normalized in {str(variant.get("variant_id")), str(variant.get("scope"))}
+    ]
+    if covered and len(covered) == len(variants):
+        return {"status": "all", "covered_variants": covered, "tested_scope": scope}
+    if covered:
+        return {"status": "partial", "covered_variants": covered, "tested_scope": scope}
+
+    return {"status": "unknown", "covered_variants": [], "tested_scope": scope}
+
+
 def evaluate_r005(input_dir: Path, normalized_model: dict[str, Any]) -> dict[str, Any] | None:
     tolerance = ratio_tolerance(input_dir)
     evidence = evidence_ratio_map(normalized_model)
@@ -443,8 +466,8 @@ def evaluate_r005(input_dir: Path, normalized_model: dict[str, Any]) -> dict[str
                     )
 
         if "ALL_OPTIONS" in claim.get("explicit_scope", []):
-            tested_scope = evidence_scope(normalized_model)
-            if tested_scope and tested_scope not in {"ALL_OPTIONS", "BLACK_ALL_SIZES"}:
+            coverage = scope_coverage(normalized_model)
+            if coverage["status"] in {"partial", "unknown"}:
                 return make_finding(
                     finding_id="F-R005-002",
                     rule_id="R-005",
@@ -458,7 +481,7 @@ def evaluate_r005(input_dir: Path, normalized_model: dict[str, Any]) -> dict[str
                     values={
                         "claim_raw_text": raw_text,
                         "claim_scope": "ALL_OPTIONS",
-                        "evidence_scope": tested_scope,
+                        "evidence_scope": coverage["tested_scope"],
                     },
                 )
 
@@ -474,6 +497,88 @@ def evaluate_r005(input_dir: Path, normalized_model: dict[str, Any]) -> dict[str
         )
 
     return None
+
+
+def variant_material_signature(variant: dict[str, Any]) -> tuple[tuple[str, str, float | None], ...]:
+    signature = []
+    for component in variant.get("material_components", []):
+        for material in component.get("materials", []):
+            normalized = material.get("normalized_material") or {}
+            material_value = normalized.get("value") or material.get("material")
+            signature.append(
+                (
+                    str(component.get("component")),
+                    str(material_value),
+                    material.get("percentage"),
+                )
+            )
+    return tuple(sorted(signature))
+
+
+def variant_material_differences(normalized_model: dict[str, Any]) -> list[dict[str, Any]]:
+    variants = normalized_model.get("variants", [])
+    signatures: dict[tuple[tuple[str, str, float | None], ...], list[dict[str, Any]]] = {}
+    for variant in variants:
+        signatures.setdefault(variant_material_signature(variant), []).append(variant)
+
+    if len(signatures) <= 1:
+        return []
+
+    differences = []
+    for signature, signature_variants in signatures.items():
+        differences.append(
+            {
+                "variant_ids": [variant.get("variant_id") for variant in signature_variants],
+                "option_names": [variant.get("option_name") for variant in signature_variants],
+                "scopes": [variant.get("scope") for variant in signature_variants],
+                "material_signature": [
+                    {
+                        "component": item[0],
+                        "material": item[1],
+                        "percentage": item[2],
+                    }
+                    for item in signature
+                ],
+            }
+        )
+    return differences
+
+
+def evaluate_r006(normalized_model: dict[str, Any]) -> dict[str, Any] | None:
+    differences = variant_material_differences(normalized_model)
+    if not differences:
+        return None
+
+    coverage = scope_coverage(normalized_model)
+    values = {
+        "tested_variant_scope": coverage["tested_scope"],
+        "scope_status": coverage["status"],
+        "covered_options": [variant.get("option_name") for variant in coverage["covered_variants"]],
+        "variant_material_differences": differences,
+    }
+
+    if coverage["status"] == "all":
+        return None
+    if coverage["status"] == "unknown":
+        return make_finding(
+            finding_id="F-R006-REVIEW-001",
+            rule_id="R-006",
+            severity="review",
+            message="Variant materials differ, but the test report variant scope could not be interpreted conservatively.",
+            evidence_refs=["variants", "evidence_document.tested_product.variant_scope"],
+            human_action="Confirm which options are covered by the test report before comparing variant-specific materials.",
+            values=values,
+        )
+
+    return make_finding(
+        finding_id="F-R006-001",
+        rule_id="R-006",
+        severity="high",
+        message="Variant materials differ, but the test report scope covers only part of the registered option set.",
+        evidence_refs=["variants", "evidence_document.tested_product.variant_scope"],
+        human_action="Confirm which options are covered by the test report before comparing variant-specific materials.",
+        values=values,
+    )
 
 
 def run_gate_rules(
@@ -537,13 +642,25 @@ def run_gate_rules(
         r005 = evaluate_r005(case_dir, normalized_model)
         if r005 is not None:
             findings.append(r005)
-            if r005["severity"] == "high":
-                return {
-                    "halted": True,
-                    "halt_reason": "R-005 high: detail page explicit claim exceeds evidence",
-                    "findings": findings,
-                    "skipped_rules": ["R-006"],
-                }
+
+        r006 = evaluate_r006(normalized_model)
+        if r006 is not None:
+            findings.append(r006)
+
+        high_rules = [finding["rule_id"] for finding in findings if finding["severity"] == "high"]
+        if "R-005" in high_rules or "R-006" in high_rules:
+            if "R-005" in high_rules and "R-006" in high_rules:
+                halt_reason = "R-005/R-006 high: detail claim and variant scope issues"
+            elif "R-005" in high_rules:
+                halt_reason = "R-005 high: detail page explicit claim exceeds evidence"
+            else:
+                halt_reason = "R-006 high: variant material scope gap"
+            return {
+                "halted": True,
+                "halt_reason": halt_reason,
+                "findings": findings,
+                "skipped_rules": [],
+            }
 
     return {
         "halted": False,

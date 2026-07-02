@@ -178,7 +178,7 @@ def build_normalized_model(input_dir: Path | str) -> dict[str, Any]:
     policy = load_case_policy(case_dir)
     product_draft = load_json(case_dir / "product-draft.json")
     product_notice = load_json(case_dir / "product-notice.json")
-    material_components = normalize_components(
+    default_material_components = normalize_components(
         product_draft.get("material_components", []),
         policy,
     )
@@ -190,13 +190,19 @@ def build_normalized_model(input_dir: Path | str) -> dict[str, Any]:
             for part in [variant.get("color"), variant.get("size")]
             if part
         )
+        variant_components = default_material_components
+        if variant.get("material_components"):
+            variant_components = normalize_components(
+                variant.get("material_components", []),
+                policy,
+            )
         variants.append(
             {
                 "variant_id": variant.get("variant_id") or f"variant-{index}",
                 "option_name": option_name,
                 "sku": variant.get("sku"),
                 "scope": variant.get("scope"),
-                "material_components": material_components,
+                "material_components": variant_components,
             }
         )
 

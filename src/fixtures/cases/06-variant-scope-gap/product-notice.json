@@ -1,0 +1,35 @@
+{
+  "product_id": "MUS-OUTER-00031",
+  "product_name": "노르딕 오리 다운 파카",
+  "internal_sku": "NW-DP-2026-01",
+  "material_disclosure": {},
+  "fill_disclosure": {
+    "BLACK_ALL_SIZES": [
+      {
+        "material": "오리 솜털",
+        "canonical_material": "duck_down_cluster",
+        "ratio": 80
+      },
+      {
+        "material": "오리 깃털",
+        "canonical_material": "duck_feather",
+        "ratio": 20
+      }
+    ],
+    "BEIGE_ALL_SIZES": [
+      {
+        "material": "폴리에스터",
+        "ratio": 100
+      }
+    ]
+  },
+  "variant_scope": {
+    "scope_id": "all_variants",
+    "sku": "NW-DP-2026-01",
+    "options": [
+      "블랙 / M",
+      "블랙 / L",
+      "베이지 / M"
+    ]
+  }
+}
