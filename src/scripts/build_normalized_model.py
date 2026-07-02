@@ -12,7 +12,7 @@ from normalize_inputs import load_policy, normalize_material, normalize_percenta
 from parse_test_report import parse_test_report
 
 
-PERCENTAGE_PATTERN = re.compile(r"(?P<material>[^,\n:]+?)\s+(?P<percentage>\d+(?:\.\d+)?)%")
+PERCENTAGE_PATTERN = re.compile(r"(?P<material>[^,\n:/]+?)\s+(?P<percentage>\d+(?:\.\d+)?)%?")
 SCOPE_PATTERN = re.compile(r"\b[A-Z][A-Z0-9_]*_ALL_[A-Z0-9_]+\b")
 
 

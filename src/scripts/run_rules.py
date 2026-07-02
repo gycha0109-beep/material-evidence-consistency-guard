@@ -13,6 +13,10 @@ def load_product_draft(input_dir: Path) -> dict[str, Any]:
     return json.loads((input_dir / "product-draft.json").read_text(encoding="utf-8"))
 
 
+def load_validation_policy(input_dir: Path) -> dict[str, Any]:
+    return json.loads((input_dir / "validation-policy.yml").read_text(encoding="utf-8"))
+
+
 def has_test_report(input_dir: Path) -> bool:
     return (input_dir / "test-report.md").is_file() or (input_dir / "test-report.pdf").is_file()
 
@@ -190,6 +194,163 @@ def evaluate_r003(normalized_model: dict[str, Any]) -> dict[str, Any] | None:
     return None
 
 
+def ratio_tolerance(input_dir: Path) -> float:
+    policy = load_validation_policy(input_dir)
+    try:
+        return float(policy.get("ratio_tolerance", 0))
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def detail_component(section: str) -> str | None:
+    if "Fill" in section:
+        return "충전재"
+    if "Material" in section:
+        return "겉감"
+    return None
+
+
+def material_key(component: Any, normalized_material: dict[str, Any]) -> tuple[str, str] | None:
+    if normalized_material.get("status") != "canonical":
+        return None
+    return str(component), str(normalized_material.get("value"))
+
+
+def add_ratio_entry(
+    entries: list[dict[str, Any]],
+    ambiguous_entries: list[dict[str, Any]],
+    *,
+    source: str,
+    evidence_ref: str,
+    component: Any,
+    material: dict[str, Any],
+) -> None:
+    normalized_material = material.get("normalized_material") or {}
+    entry = {
+        "source": source,
+        "evidence_ref": evidence_ref,
+        "component": component,
+        "material": material.get("material"),
+        "normalized_material": normalized_material,
+        "percentage": material.get("percentage"),
+    }
+    if normalized_material.get("status") == "ambiguous":
+        ambiguous_entries.append(entry)
+        return
+    key = material_key(component, normalized_material)
+    if key is None or material.get("percentage") is None:
+        return
+    entry["key"] = key
+    entries.append(entry)
+
+
+def ratio_entries(normalized_model: dict[str, Any]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    entries: list[dict[str, Any]] = []
+    ambiguous_entries: list[dict[str, Any]] = []
+    first_variant = next(iter(normalized_model.get("variants", [])), None)
+    if first_variant:
+        for component in first_variant.get("material_components", []):
+            for index, material in enumerate(component.get("materials", [])):
+                add_ratio_entry(
+                    entries,
+                    ambiguous_entries,
+                    source="product-draft",
+                    evidence_ref=f"variants[0].material_components.{component.get('component')}.materials[{index}]",
+                    component=component.get("component"),
+                    material=material,
+                )
+
+    notice = normalized_model.get("notice", {})
+    for disclosure_name in ["material_disclosure", "fill_disclosure"]:
+        for component, materials in notice.get(disclosure_name, {}).items():
+            for index, material in enumerate(materials):
+                add_ratio_entry(
+                    entries,
+                    ambiguous_entries,
+                    source=f"product-notice.{disclosure_name}",
+                    evidence_ref=f"notice.{disclosure_name}.{component}[{index}]",
+                    component=component,
+                    material=material,
+                )
+
+    for claim_index, claim in enumerate(normalized_model.get("detail_claims", [])):
+        component = detail_component(claim.get("section", ""))
+        if component is None:
+            continue
+        for material_index, material in enumerate(claim.get("explicit_materials", [])):
+            add_ratio_entry(
+                entries,
+                ambiguous_entries,
+                source="detail-page",
+                evidence_ref=f"detail_claims[{claim_index}].explicit_materials[{material_index}]",
+                component=component,
+                material=material,
+            )
+
+    for index, material in enumerate(normalized_model.get("evidence_document", {}).get("tested_materials", [])):
+        add_ratio_entry(
+            entries,
+            ambiguous_entries,
+            source="test-report",
+            evidence_ref=f"evidence_document.tested_materials[{index}]",
+            component=material.get("component"),
+            material=material,
+        )
+
+    return entries, ambiguous_entries
+
+
+def evaluate_r004(input_dir: Path, normalized_model: dict[str, Any]) -> dict[str, Any] | None:
+    entries, ambiguous_entries = ratio_entries(normalized_model)
+    if ambiguous_entries:
+        return make_finding(
+            finding_id="F-R004-REVIEW-001",
+            rule_id="R-004",
+            severity="review",
+            message="Material ratio comparison includes ambiguous material aliases and cannot be treated as a confirmed mismatch.",
+            evidence_refs=[entry["evidence_ref"] for entry in ambiguous_entries],
+            human_action="Confirm the latest production specification, product notice, detail page, and test report baseline values.",
+            values={"ambiguous_values": ambiguous_entries},
+        )
+
+    grouped: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    for entry in entries:
+        grouped.setdefault(entry["key"], []).append(entry)
+
+    tolerance = ratio_tolerance(input_dir)
+    for key, group in grouped.items():
+        sources = {entry["source"] for entry in group}
+        if "test-report" not in sources or len(sources) < 2:
+            continue
+        percentages = [float(entry["percentage"]) for entry in group]
+        if max(percentages) - min(percentages) > tolerance:
+            component, canonical_material = key
+            return make_finding(
+                finding_id="F-R004-001",
+                rule_id="R-004",
+                severity="high",
+                message="Material ratio values differ across product inputs and test report beyond the configured tolerance.",
+                evidence_refs=[entry["evidence_ref"] for entry in group],
+                human_action="Confirm the latest production specification, product notice, detail page, and test report baseline values.",
+                values={
+                    "component": component,
+                    "canonical_material": canonical_material,
+                    "ratio_tolerance": tolerance,
+                    "source_values": [
+                        {
+                            "source": entry["source"],
+                            "material": entry["material"],
+                            "percentage": entry["percentage"],
+                            "evidence_ref": entry["evidence_ref"],
+                        }
+                        for entry in group
+                    ],
+                },
+            )
+
+    return None
+
+
 def run_gate_rules(
     input_dir: Path | str,
     normalized_model: dict[str, Any] | None = None,
@@ -229,6 +390,23 @@ def run_gate_rules(
                     "halt_reason": "R-003 high: test report target product mismatch",
                     "findings": findings,
                     "skipped_rules": ["R-004", "R-005", "R-006"],
+                }
+            return {
+                "halted": False,
+                "halt_reason": None,
+                "findings": findings,
+                "skipped_rules": ["R-004", "R-005", "R-006"],
+            }
+
+        r004 = evaluate_r004(case_dir, normalized_model)
+        if r004 is not None:
+            findings.append(r004)
+            if r004["severity"] == "high":
+                return {
+                    "halted": True,
+                    "halt_reason": "R-004 high: material ratio conflict",
+                    "findings": findings,
+                    "skipped_rules": ["R-005", "R-006"],
                 }
 
     return {
