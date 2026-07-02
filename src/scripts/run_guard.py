@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from build_normalized_model import build_normalized_model
+from render_outputs import write_json_outputs
 from run_rules import run_gate_rules
 from validate_input import validate_input
 
@@ -60,13 +61,16 @@ def run(input_dir: Path, output_dir: Path, overwrite: bool = False) -> int:
         return 2
 
     output_dir.mkdir(parents=True, exist_ok=True)
+    generated_at = datetime.now(timezone.utc).isoformat()
+    run_id = f"run-{generated_at}"
 
     run_meta = {
         "input_dir": str(input_dir),
         "output_dir": str(output_dir),
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": generated_at,
         "status": "initialized",
         "tool_version": TOOL_VERSION,
+        "run_id": run_id,
     }
 
     run_meta_path = output_dir / "run-meta.json"
@@ -88,6 +92,7 @@ def run(input_dir: Path, output_dir: Path, overwrite: bool = False) -> int:
         json.dumps(rules_result, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
+    write_json_outputs(output_dir, run_id, normalized_model, rules_result)
     return 0
 
 
