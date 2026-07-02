@@ -2,3 +2,8 @@
 name = "material-evidence-consistency-guard"
 version = "0.1.0"
 requires-python = ">=3.11"
+
+[project.optional-dependencies]
+pdf = [
+  "pypdf>=4.0.0"
+]

@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from normalize_inputs import load_policy, normalize_material, normalize_percentage
-from parse_test_report import parse_test_report
+from parse_test_report import parse_test_report_input
 
 
 PERCENTAGE_PATTERN = re.compile(r"(?P<material>[^,\n:/]+?)\s+(?P<percentage>\d+(?:\.\d+)?)%?")
@@ -206,7 +206,7 @@ def build_normalized_model(input_dir: Path | str) -> dict[str, Any]:
             }
         )
 
-    evidence = parse_test_report(case_dir / "test-report.md", policy)
+    evidence = parse_test_report_input(case_dir, policy)
     model = {
         "product": {
             "product_id": product_draft.get("product_id"),

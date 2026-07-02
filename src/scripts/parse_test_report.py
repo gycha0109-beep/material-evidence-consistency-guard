@@ -113,13 +113,24 @@ def _parse_tested_materials(lines: list[str], policy: dict[str, Any]) -> list[di
     return normalized_materials
 
 
-def parse_test_report(path: Path | str, policy: dict[str, Any] | None = None) -> dict[str, Any]:
-    report_path = Path(path)
-    if not report_path.is_file():
-        raise FileNotFoundError(f"test report does not exist: {report_path}")
+def unreadable_result(reason: str) -> dict[str, Any]:
+    return {
+        "document_status": "unreadable",
+        "report_id": None,
+        "issuer": None,
+        "issued_at": None,
+        "tested_product": {
+            "name": None,
+            "identifier": None,
+            "variant_scope": None,
+            "valid_until": None,
+        },
+        "tested_materials": [],
+        "missing_fields": [reason],
+    }
 
-    policy_data = policy or load_policy()
-    text = report_path.read_text(encoding="utf-8")
+
+def parse_test_report_text(text: str, policy: dict[str, Any]) -> dict[str, Any]:
     front_matter, body = _parse_front_matter(text)
     missing_fields: list[str] = []
 
@@ -129,7 +140,7 @@ def parse_test_report(path: Path | str, policy: dict[str, Any] | None = None) ->
 
     tested_materials = _parse_tested_materials(
         _section_lines(body, "## Tested Materials"),
-        policy_data,
+        policy,
     )
     if not tested_materials:
         missing_fields.append("tested_materials")
@@ -151,6 +162,69 @@ def parse_test_report(path: Path | str, policy: dict[str, Any] | None = None) ->
         "tested_materials": tested_materials,
         "missing_fields": missing_fields,
     }
+
+
+def parse_pdf_text(path: Path) -> str | None:
+    try:
+        from pypdf import PdfReader
+    except ImportError:
+        return None
+
+    reader = PdfReader(str(path))
+    parts = []
+    for page in reader.pages:
+        page_text = page.extract_text() or ""
+        if page_text:
+            parts.append(page_text)
+    return "\n".join(parts)
+
+
+def parse_test_report_pdf(path: Path | str, policy: dict[str, Any] | None = None) -> dict[str, Any]:
+    report_path = Path(path)
+    if not report_path.is_file():
+        return unreadable_result(f"test report PDF does not exist: {report_path}")
+
+    policy_data = policy or load_policy()
+    try:
+        text = parse_pdf_text(report_path)
+    except Exception as exc:
+        return unreadable_result(f"test-report.pdf extraction failed: {exc}")
+
+    if text is None:
+        return unreadable_result("test-report.pdf extraction unavailable: optional dependency pypdf is not installed")
+
+    if len(text.strip()) < 40:
+        return unreadable_result("test-report.pdf extraction produced too little text")
+
+    result = parse_test_report_text(text, policy_data)
+    if result["document_status"] != "parsed":
+        result["document_status"] = "incomplete"
+        if "test-report.pdf extracted text did not satisfy required fields" not in result["missing_fields"]:
+            result["missing_fields"].append("test-report.pdf extracted text did not satisfy required fields")
+    return result
+
+
+def parse_test_report(path: Path | str, policy: dict[str, Any] | None = None) -> dict[str, Any]:
+    report_path = Path(path)
+    if not report_path.is_file():
+        raise FileNotFoundError(f"test report does not exist: {report_path}")
+
+    policy_data = policy or load_policy()
+    text = report_path.read_text(encoding="utf-8")
+    return parse_test_report_text(text, policy_data)
+
+
+def parse_test_report_input(input_dir: Path | str, policy: dict[str, Any] | None = None) -> dict[str, Any]:
+    case_dir = Path(input_dir)
+    markdown_path = case_dir / "test-report.md"
+    if markdown_path.is_file():
+        return parse_test_report(markdown_path, policy)
+
+    pdf_path = case_dir / "test-report.pdf"
+    if pdf_path.is_file():
+        return parse_test_report_pdf(pdf_path, policy)
+
+    raise FileNotFoundError(f"test report does not exist: {markdown_path} or {pdf_path}")
 
 
 def build_parser() -> argparse.ArgumentParser:
